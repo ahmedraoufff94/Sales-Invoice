@@ -300,8 +300,16 @@ private TableView TableView;
         return handler;
     }
 
-
-
+ public int getMaxNumber(){
+        int number=0;
+        for(InvoiceHeader invoiceHeader : invoicess){
+        if(number <invoiceHeader.getNum())
+            number= invoiceHeader.getNum();
+        
+        }
+        
+  return number;
+            }
 
 
 }

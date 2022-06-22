@@ -5,6 +5,8 @@ import SIG.Model.InvoiceHeader;
 import SIG.Model.InvoiceLine;
 import SIG.Model.LineTableView;
 import SIG.Model.TableView;
+import SIG.View.InvDialog;
+import SIG.View.LineDialog;
 import SIG.View.SalesInvoiceFrame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -23,7 +25,10 @@ import javax.swing.event.ListSelectionListener;
 
 
 public class ActionHandler implements ActionListener, ListSelectionListener {
-private SalesInvoiceFrame frame;
+    
+    private InvDialog invDialog;
+    private LineDialog lineDialog;
+    private SalesInvoiceFrame frame;
     public ActionHandler(SalesInvoiceFrame frame){
     this.frame=frame;
     }
@@ -62,8 +67,28 @@ private SalesInvoiceFrame frame;
                 System.out.println("Save file");
                 saveFile();
                 break;    
-                       
-                          
+                
+            case "InvoiceCreated":
+                System.out.println("InvoiceCreated");       
+                  InvoiceCreated();     
+                 break;       
+                   
+            case "NoInvoiceCreated":
+                System.out.println("NoInvoiceCreated");
+                NoInvoiceCreated();
+                break;
+                
+                case "LineCreated":
+                System.out.println("LineCreated");       
+                  LineCreated();     
+                 break;       
+                   
+            case "NoLineCreated":
+                System.out.println("NoLineCreated");
+                NoLineCreated();
+                break;
+                        
+                     
             default:
                 throw new AssertionError();
         }
@@ -72,17 +97,40 @@ private SalesInvoiceFrame frame;
     }
 
     private void newInv() {
+        invDialog = new InvDialog(frame);
+        invDialog.setVisible(true);
         
     }
+    
 
     private void delInv() {
+        int rowChoosen= frame.getHeaderTable().getSelectedRow();
+        if (rowChoosen != -1){
+            frame.getInvoicess().remove(rowChoosen);
+            frame.getTableView().fireTableDataChanged();
+        }
     }
+    
+    
 
     private void addItem() {
     }
 
     private void deleteItem() {
+       int invoiceSelected = frame.getHeaderTable().getSelectedRow();
+       int rowSelected = frame.getLineTable().getSelectedRow();
+  
+        if (invoiceSelected != -1 && rowSelected != -1){
+            InvoiceHeader invoiceHeader = frame.getInvoicess().get(invoiceSelected);
+            invoiceHeader.getLines().remove(rowSelected);
+            LineTableView lineTableView = new LineTableView(invoiceHeader.getLines());
+            frame.getLineTable().setModel(lineTableView);
+            lineTableView.fireTableDataChanged();
+        }
+            
     }
+    
+    
     private void saveFile() {
     }
     
@@ -92,6 +140,7 @@ private SalesInvoiceFrame frame;
  @Override
     public void valueChanged(ListSelectionEvent e) {
         int Index =frame.getHeaderTable().getSelectedRow();
+       if (Index!= -1){
         InvoiceHeader selectedInvoice = frame.getInvoicess().get(Index);
       System.out.println("selection happened");
       
@@ -103,7 +152,7 @@ private SalesInvoiceFrame frame;
       frame.getLineTable().setModel(lineTableView);
       lineTableView.fireTableDataChanged();
     }
-    
+    }
     
     
     private void loadFile() {
@@ -161,8 +210,35 @@ frame.getTableView().fireTableDataChanged();
         }
         }
 
-   
+    private void InvoiceCreated() {
+       String date = invDialog.getDateField().getText();
+       String name = invDialog.getCustomerField().getText();
+       int invNumber = frame.getMaxNumber();
+       
+       InvoiceHeader invoiceHeader = new InvoiceHeader(invNumber, name, date);
+       frame.getInvoicess().add(invoiceHeader);
+       frame.getTableView().fireTableDataChanged();
+       invDialog.setVisible(false);
+       invDialog.dispose();
+       invDialog = null;
+    }
 
+    private void NoInvoiceCreated() {
+        invDialog.setVisible(false);
+        invDialog.dispose();
+        invDialog=null;
+    }
+
+    private void LineCreated() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    private void NoLineCreated() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+   
+   
     
     
         
